@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vérification de certificat – EPIK Leaders ENCG Agadir</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#0b2457;--mute:#5b6577;--ok:#1a7f4b;--okbg:#e6f5ec;--ko:#b3261e;--kobg:#fdecea;--line:#d9dfea;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1424;--card:#151e33;--ink:#e8eefc;--mute:#9aa6bf;--ok:#5fd39a;--okbg:#10301f;--ko:#ff8a80;--kobg:#3a1815;--line:#2a3550}}
+:root[data-theme="dark"]{--bg:#0d1424;--card:#151e33;--ink:#e8eefc;--mute:#9aa6bf;--ok:#5fd39a;--okbg:#10301f;--ko:#ff8a80;--kobg:#3a1815;--line:#2a3550}
+html{color-scheme:light dark}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,'Times New Roman',serif;display:flex;justify-content:center;padding:24px 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;max-width:460px;width:100%;padding:28px 22px;text-align:center}
+h1{font-size:15px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 4px}
+.sub{color:var(--mute);font-size:13px;margin-bottom:22px}
+.res{border-radius:12px;padding:20px 14px;margin:8px 0 18px}
+.res.ok{background:var(--okbg);color:var(--ok)}.res.ko{background:var(--kobg);color:var(--ko)}
+.badge{font:600 13px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.name{font-size:28px;font-style:italic;color:var(--ink);margin:10px 0 4px}
+.ev{font-size:14px;color:var(--ink)}.meta{font:13px system-ui,sans-serif;color:var(--mute);margin-top:6px}
+input{font:16px system-ui,sans-serif;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);width:100%;box-sizing:border-box;text-align:center}
+button{font:600 15px system-ui,sans-serif;margin-top:10px;width:100%;padding:12px;border:0;border-radius:10px;background:var(--ink);color:var(--card);cursor:pointer}
+.lbl{font:13px system-ui,sans-serif;color:var(--mute);margin-bottom:8px}
+</style></head><body>
+<div class="card">
+<h1>EPIK Leaders – ENCG Agadir</h1>
+<div class="sub">Vérification d’authenticité des certificats</div>
+<div id="out"></div>
+<div class="lbl">Saisir un numéro de série</div>
+<input id="inp" placeholder="EPIK-BMC-2026-001" autocapitalize="characters" autocomplete="off">
+<button id="go">Vérifier</button>
+</div>
+<script>
+var EVENT="Business Model Canvas Workshop – 1ère édition de l’EPIK Business Forum";
+var DB={
+"EPIK-BMC-2026-001":"Mohamed Rayane Behloul","EPIK-BMC-2026-002":"Oussama Balaoui","EPIK-BMC-2026-003":"Zaineb El Bair",
+"EPIK-BMC-2026-004":"Ilham Diab","EPIK-BMC-2026-005":"Abdellah Benfiem","EPIK-BMC-2026-006":"Kamouch Hiba",
+"EPIK-BMC-2026-007":"Marouane El Abyad","EPIK-BMC-2026-008":"Wassim Korsan","EPIK-BMC-2026-009":"Ibtissam Belkahia",
+"EPIK-BMC-2026-010":"Ayoub El Mansouri","EPIK-BMC-2026-011":"Zineb Oulhour","EPIK-BMC-2026-012":"Ikram Ouomar",
+"EPIK-BMC-2026-013":"Chaïma Sabri","EPIK-BMC-2026-014":"Douae Zaafane","EPIK-BMC-2026-015":"Zakaria Bahamou","EPIK-BMC-2026-016":"Nassim Sanfi","EPIK-BMC-2026-017":"M’hamd Benabdelkader","EPIK-BMC-2026-018":"Soumia Anouiti","EPIK-BMC-2026-019":"Najwa Rbihi","EPIK-BMC-2026-020":"Hajar Bijaad","EPIK-BMC-2026-021":"Khadija Bahmani","EPIK-BMC-2026-022":"Omar Agoujil","EPIK-BMC-2026-023":"Mejdaoui Mohammed","EPIK-BMC-2026-024":"Zitouni Adam","EPIK-BMC-2026-025":"Ismail El Qaara"};
+function show(id){
+  id=(id||"").trim().toUpperCase();var o=document.getElementById("out");
+  if(!id){o.innerHTML="";return;}
+  var n=Object.prototype.hasOwnProperty.call(DB,id)?DB[id]:null;
+  o.innerHTML=n?
+   '<div class="res ok"><div class="badge">✔ Certificat authentique</div><div class="name"></div><div class="ev"></div><div class="meta"></div></div>':
+   '<div class="res ko"><div class="badge">✘ Certificat introuvable</div><div class="meta" style="color:inherit"></div></div>';
+  if(n){o.querySelector(".name").textContent=n;o.querySelector(".ev").textContent=EVENT;o.querySelector(".meta").textContent="N° "+id+" · Organisé par EPIK Leaders – ENCG Agadir";}
+  else o.querySelector(".meta").textContent="Le numéro « "+id+" » ne correspond à aucun certificat délivré.";
+}
+function fromHash(){var h=location.hash.replace("#","");if(h){document.getElementById("inp").value=h;show(h);}}
+document.getElementById("go").onclick=function(){var v=document.getElementById("inp").value.trim().toUpperCase();
+  try{location.hash=v;}catch(e){}show(v);};
+document.getElementById("inp").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("go").click();});
+window.addEventListener("hashchange",fromHash);fromHash();
+</script></body></html>
