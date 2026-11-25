@@ -42,6 +42,7 @@ button{width:100%;margin-top:16px;padding:12px;border:0;border-radius:10px;backg
 <script>
 var TYPE = "Participation à l’organisation de l’EPIK Business Forum – 1ère édition";
 var SP = "Sponsoring & Partnership", OR = "Organization", MK = "Marketing", ER = "External Relations";
+var MC = "Master of Ceremonies", MD = "Moderator";
 var REGISTRY = {
   "EPIK-ORG-2026-001": {name: "Asaad Chakir", team: SP},
   "EPIK-ORG-2026-002": {name: "Chaouch Wissal", team: SP},
@@ -81,7 +82,9 @@ var REGISTRY = {
   "EPIK-ORG-2026-036": {name: "Bensaid Saida", team: MK},
   "EPIK-ORG-2026-037": {name: "Achenani Noura", team: MK},
   "EPIK-ORG-2026-038": {name: "Kamouch Hiba", team: ER},
-  "EPIK-ORG-2026-039": {name: "Hmimaz Siham", team: ER}
+  "EPIK-ORG-2026-039": {name: "Hmimaz Siham", team: ER},
+  "EPIK-ORG-2026-040": {name: "Kaoutar Tita", role: MC},
+  "EPIK-ORG-2026-041": {name: "Mohamed Belghmidi", role: MD}
 };
 
 function norm(s) {
@@ -123,7 +126,8 @@ if (typeof document !== "undefined") {
       add("status ok", "✔ Certificat authentique");
       add("name", r.data.name);
       add("label", "Type de certificat"); add("val", TYPE);
-      add("label", "Équipe"); add("val", r.data.team);
+      if (r.data.role) { add("label", "Rôle"); add("val", r.data.role); }
+      else { add("label", "Équipe"); add("val", r.data.team); }
     } else if (r.status === "mismatch") {
       add("status ko", "✘ Informations non concordantes");
       add("val", "Le nom ne correspond pas à ce numéro de série.");
