@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vérification – EPIK Leaders</title>
+<style>
+:root{--navy:#0b2a55;--ok:#157347;--ko:#b42318;--bg:#f3f5f9}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#1c2430;padding:16px}
+.card{background:#fff;max-width:460px;width:100%;border-radius:16px;box-shadow:0 8px 30px rgba(11,42,85,.12);padding:32px 24px;text-align:center;border-top:6px solid var(--navy)}
+.brand{font-weight:700;letter-spacing:.08em;color:var(--navy);font-size:14px;margin-bottom:20px}
+.status{font-size:22px;font-weight:700;margin:8px 0 18px}
+.ok{color:var(--ok)}.ko{color:var(--ko)}
+.name{font-size:26px;font-weight:700;color:var(--navy);margin:6px 0}
+.label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#667085;margin-top:18px}
+.val{font-size:16px;margin-top:4px}
+.serial{margin-top:22px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#667085;word-break:break-all}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">EPIK LEADERS · ENCG AGADIR</div>
+  <div id="out"></div>
+</div>
+<script>
+var TYPE = "Participation à l’organisation de l’EPIK Business Forum – 1ère édition";
+var SP = "Sponsoring & Partnership", OR = "Organization", MK = "Marketing", ER = "External Relations";
+var REGISTRY = {
+  "EPIK-ORG-2026-001": {name: "Asaad Chakir", team: SP},
+  "EPIK-ORG-2026-002": {name: "Chaouch Wissal", team: SP},
+  "EPIK-ORG-2026-003": {name: "Diab Ilham", team: SP},
+  "EPIK-ORG-2026-004": {name: "El Mansouri Ayoub", team: SP},
+  "EPIK-ORG-2026-005": {name: "Chouaf Ikbal", team: SP},
+  "EPIK-ORG-2026-006": {name: "Korsan Wassim", team: SP},
+  "EPIK-ORG-2026-007": {name: "Touil Youssef", team: OR},
+  "EPIK-ORG-2026-008": {name: "Zitouni Adam", team: OR},
+  "EPIK-ORG-2026-009": {name: "El Qara Ismail", team: OR},
+  "EPIK-ORG-2026-010": {name: "Mejdaoui Mohamed", team: OR},
+  "EPIK-ORG-2026-011": {name: "Saadi Ismail", team: OR},
+  "EPIK-ORG-2026-012": {name: "Zaafane Douae", team: OR},
+  "EPIK-ORG-2026-013": {name: "Sanfi Nassim", team: OR},
+  "EPIK-ORG-2026-014": {name: "Bahamou Zakaria", team: OR},
+  "EPIK-ORG-2026-015": {name: "Aguechoul Rayan", team: OR},
+  "EPIK-ORG-2026-016": {name: "Sabour El Idrissi Abdelhamid", team: OR},
+  "EPIK-ORG-2026-017": {name: "Balaoui Oussama", team: OR},
+  "EPIK-ORG-2026-018": {name: "Bencheikh Hiba", team: OR},
+  "EPIK-ORG-2026-019": {name: "Olhour Zineb", team: OR},
+  "EPIK-ORG-2026-020": {name: "Belkahia Ibtissam", team: OR},
+  "EPIK-ORG-2026-021": {name: "Yacoubi Fatima Azzahrae", team: OR},
+  "EPIK-ORG-2026-022": {name: "Attouche Riham", team: MK},
+  "EPIK-ORG-2026-023": {name: "Al Hargoum Aya", team: MK},
+  "EPIK-ORG-2026-024": {name: "Ouiam Badreddine", team: MK},
+  "EPIK-ORG-2026-025": {name: "Behloul Mohamed Rayan", team: MK},
+  "EPIK-ORG-2026-026": {name: "Bahaqi Marwa", team: MK},
+  "EPIK-ORG-2026-027": {name: "Benfiem Abdellah", team: MK},
+  "EPIK-ORG-2026-028": {name: "Benhamouch Rawane", team: MK},
+  "EPIK-ORG-2026-029": {name: "El Boukili Sarah", team: MK},
+  "EPIK-ORG-2026-030": {name: "El Khomri Aya", team: MK},
+  "EPIK-ORG-2026-031": {name: "Idmhand Fatima Ezzahra", team: MK},
+  "EPIK-ORG-2026-032": {name: "Ouomar Ikram", team: MK},
+  "EPIK-ORG-2026-033": {name: "M’hamd Benabdelkader", team: MK},
+  "EPIK-ORG-2026-034": {name: "Rbihi Najwa", team: MK},
+  "EPIK-ORG-2026-035": {name: "Zebbara Najwa", team: MK},
+  "EPIK-ORG-2026-036": {name: "Bensaid Saida", team: MK},
+  "EPIK-ORG-2026-037": {name: "Achenani Noura", team: MK},
+  "EPIK-ORG-2026-038": {name: "Kamouch Hiba", team: ER},
+  "EPIK-ORG-2026-039": {name: "Hmimaz Siham", team: ER}
+};
+
+function lookup(raw) {
+  var id = "";
+  try { id = decodeURIComponent(String(raw || "")); } catch (e) { id = String(raw || ""); }
+  id = id.replace(/^#/, "").trim().toUpperCase();
+  var found = Object.prototype.hasOwnProperty.call(REGISTRY, id);
+  return { id: id, data: found ? REGISTRY[id] : null };
+}
+
+if (typeof document !== "undefined") {
+  var out = document.getElementById("out");
+  var add = function (cls, text) {
+    var d = document.createElement("div");
+    d.className = cls;
+    d.textContent = text;
+    out.appendChild(d);
+  };
+  var render = function () {
+    out.textContent = "";
+    var r = lookup(location.hash);
+    if (!r.id) {
+      add("status", "Scannez le QR code du certificat");
+      return;
+    }
+    if (r.data) {
+      add("status ok", "✔ Certificat authentique");
+      add("name", r.data.name);
+      add("label", "Type de certificat");
+      add("val", TYPE);
+      add("label", "Équipe");
+      add("val", r.data.team);
+    } else {
+      add("status ko", "✘ Certificat introuvable");
+      add("val", "Aucun certificat ne correspond à ce numéro.");
+    }
+    add("serial", "N° " + r.id);
+  };
+  window.addEventListener("hashchange", render);
+  render();
+}
+</script>
+</body>
+</html>
