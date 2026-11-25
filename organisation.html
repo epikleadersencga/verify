@@ -15,6 +15,13 @@ body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:c
 .name{font-size:26px;font-weight:700;color:var(--navy);margin:6px 0}
 .label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#667085;margin-top:18px}
 .val{font-size:16px;margin-top:4px}
+form{margin-top:26px;text-align:left;border-top:1px solid #e4e7ec;padding-top:20px}
+form h2{font-size:14px;color:var(--navy);margin:0 0 12px;text-align:center}
+label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#667085;margin:12px 0 4px}
+input{width:100%;padding:11px 12px;border:1px solid #cfd4dc;border-radius:10px;font-size:16px;font-family:inherit}
+input:focus{outline:2px solid var(--navy);border-color:transparent}
+button{width:100%;margin-top:16px;padding:12px;border:0;border-radius:10px;background:var(--navy);color:#fff;font-size:16px;font-weight:600;cursor:pointer}
+.hint{font-size:12px;color:#667085;margin-top:8px;text-align:center}
 .serial{margin-top:22px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#667085;word-break:break-all}
 </style>
 </head>
@@ -22,6 +29,15 @@ body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:c
 <div class="card">
   <div class="brand">EPIK LEADERS · ENCG AGADIR</div>
   <div id="out"></div>
+  <form id="f" autocomplete="off">
+    <h2>Vérifier manuellement</h2>
+    <label for="code">N° de série</label>
+    <input id="code" placeholder="EPIK-ORG-2026-001" autocapitalize="characters" spellcheck="false">
+    <label for="nm">Nom et prénom</label>
+    <input id="nm" placeholder="Ex : Asaad Chakir">
+    <button type="submit">Vérifier</button>
+    <div class="hint">Saisissez le n° de série, le nom, ou les deux.</div>
+  </form>
 </div>
 <script>
 var TYPE = "Participation à l’organisation de l’EPIK Business Forum – 1ère édition";
@@ -68,44 +84,69 @@ var REGISTRY = {
   "EPIK-ORG-2026-039": {name: "Hmimaz Siham", team: ER}
 };
 
-function lookup(raw) {
+function norm(s) {
+  return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().replace(/[’'`]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+}
+function cleanId(raw) {
   var id = "";
   try { id = decodeURIComponent(String(raw || "")); } catch (e) { id = String(raw || ""); }
-  id = id.replace(/^#/, "").trim().toUpperCase();
-  var found = Object.prototype.hasOwnProperty.call(REGISTRY, id);
-  return { id: id, data: found ? REGISTRY[id] : null };
+  return id.replace(/^#/, "").trim().toUpperCase();
+}
+function has(id) { return Object.prototype.hasOwnProperty.call(REGISTRY, id); }
+
+// Retourne {id, data, status}; status: empty | ok | notfound | mismatch
+function check(rawId, rawName) {
+  var id = cleanId(rawId), n = norm(rawName);
+  if (!id && !n) return { status: "empty" };
+  if (id) {
+    if (!has(id)) return { status: "notfound", id: id };
+    if (n && norm(REGISTRY[id].name) !== n) return { status: "mismatch", id: id };
+    return { status: "ok", id: id, data: REGISTRY[id] };
+  }
+  for (var k in REGISTRY) {
+    if (has(k) && norm(REGISTRY[k].name) === n) return { status: "ok", id: k, data: REGISTRY[k] };
+  }
+  return { status: "notfound", id: "" };
 }
 
 if (typeof document !== "undefined") {
   var out = document.getElementById("out");
   var add = function (cls, text) {
     var d = document.createElement("div");
-    d.className = cls;
-    d.textContent = text;
-    out.appendChild(d);
+    d.className = cls; d.textContent = text; out.appendChild(d);
   };
-  var render = function () {
+  var show = function (r) {
     out.textContent = "";
-    var r = lookup(location.hash);
-    if (!r.id) {
-      add("status", "Scannez le QR code du certificat");
-      return;
-    }
-    if (r.data) {
+    if (r.status === "empty") { add("status", "Scannez le QR code du certificat"); return; }
+    if (r.status === "ok") {
       add("status ok", "✔ Certificat authentique");
       add("name", r.data.name);
-      add("label", "Type de certificat");
-      add("val", TYPE);
-      add("label", "Équipe");
-      add("val", r.data.team);
+      add("label", "Type de certificat"); add("val", TYPE);
+      add("label", "Équipe"); add("val", r.data.team);
+    } else if (r.status === "mismatch") {
+      add("status ko", "✘ Informations non concordantes");
+      add("val", "Le nom ne correspond pas à ce numéro de série.");
     } else {
       add("status ko", "✘ Certificat introuvable");
-      add("val", "Aucun certificat ne correspond à ce numéro.");
+      add("val", "Aucun certificat ne correspond à ces informations.");
     }
-    add("serial", "N° " + r.id);
+    if (r.id) add("serial", "N° " + r.id);
   };
-  window.addEventListener("hashchange", render);
-  render();
+  var codeEl = document.getElementById("code"), nmEl = document.getElementById("nm");
+  document.getElementById("f").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var r = check(codeEl.value, nmEl.value);
+    show(r);
+    if (r.status === "ok") { try { history.replaceState(null, "", "#" + r.id); } catch (x) {} }
+  });
+  var fromHash = function () {
+    var id = cleanId(location.hash);
+    if (id) codeEl.value = id;
+    show(check(location.hash, ""));
+  };
+  window.addEventListener("hashchange", fromHash);
+  fromHash();
 }
 </script>
 </body>
